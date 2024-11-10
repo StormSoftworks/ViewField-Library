@@ -1,0 +1,374 @@
+local UIS = game:GetService('UserInputService')
+local Lib = {};
+
+function Lib:CreateUI(name)
+	local GUI = {}
+	do 
+		-- Main Screen GUI
+		Lib["1"] = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"))
+		Lib["1"]["Name"] = [[UI]]
+		Lib["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling
+
+		-- Main Frame
+		Lib["2"] = Instance.new("Frame", Lib["1"])
+		Lib["2"]["BorderSizePixel"] = 0
+		Lib["2"]["BackgroundColor3"] = Color3.fromRGB(21, 21, 21)
+		Lib["2"]["Size"] = UDim2.new(0, 480, 0, 589)
+		Lib["2"]["Position"] = UDim2.new(0.37705, 0, 0.25118, 0)
+		Lib["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+		Lib["2"]["Name"] = [[MainFrame]]
+
+		-- Main Frame UIStroke
+		Lib["3"] = Instance.new("UIStroke", Lib["2"])
+		Lib["3"]["Color"] = Color3.fromRGB(128, 128, 128)
+
+		-- Title
+		Lib["23"] = Instance.new("TextLabel", Lib["2"])
+		Lib["23"]["BorderSizePixel"] = 0
+		Lib["23"]["TextXAlignment"] = Enum.TextXAlignment.Left
+		Lib["23"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+		Lib["23"]["TextSize"] = 14
+		Lib["23"]["FontFace"] = Font.new([[rbxasset://fonts/families/Michroma.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+		Lib["23"]["TextColor3"] = Color3.fromRGB(210, 111, 12)
+		Lib["23"]["BackgroundTransparency"] = 1
+		Lib["23"]["Size"] = UDim2.new(0, 454, 0, 31)
+		Lib["23"]["Text"] = name
+		Lib["23"]["Name"] = [[Title]]
+		Lib["23"]["Position"] = UDim2.new(0.02708, 0, 0, 0)
+
+		-- Toggle visibility on Insert key
+		UIS.InputBegan:Connect(function(input, processed)
+			if not processed and input.KeyCode == Enum.KeyCode.Insert then
+				Lib["1"].Enabled = not Lib["1"].Enabled
+			end
+		end)
+
+		-- Make Main Frame draggable
+		Lib["2"].Active = true
+		Lib["2"].Draggable = true
+
+		-- Create a single Menu frame to hold tab buttons
+		Lib["Menu"] = Instance.new("Frame", Lib["2"])
+		Lib["Menu"]["BorderSizePixel"] = 0
+		Lib["Menu"]["BackgroundColor3"] = Color3.fromRGB(31, 31, 31)
+		Lib["Menu"]["Size"] = UDim2.new(0, 454, 0, 25)
+		Lib["Menu"]["Position"] = UDim2.new(0.02708, 0, 0.05055, 0)
+		Lib["Menu"]["Name"] = [[Menu]]
+
+		-- UIStroke for Menu
+		Lib["MenuStroke"] = Instance.new("UIStroke", Lib["Menu"])
+		Lib["MenuStroke"]["Color"] = Color3.fromRGB(72, 72, 72)
+		
+		Lib["MenuList"] = Instance.new("UIGridLayout", Lib["Menu"])
+		Lib["MenuList"].CellSize = UDim2.new(0, 75,0, 25)
+
+		-- Content area for tabs
+		Lib["CProvider"] = Instance.new("Frame", Lib["2"])
+		Lib["CProvider"]["BorderSizePixel"] = 0
+		Lib["CProvider"]["BackgroundColor3"] = Color3.fromRGB(31, 31, 31)
+		Lib["CProvider"]["Size"] = UDim2.new(0, 454, 0, 508)
+		Lib["CProvider"]["Position"] = UDim2.new(0.02708, 0, 0.11873, 0)
+		Lib["CProvider"]["Name"] = [[CProvider]]
+		Lib["CProvider"].Visible = true  -- Hide initially, show tabs on creation
+
+		-- UIStroke for Content area
+		Lib["CProviderStroke"] = Instance.new("UIStroke", Lib["CProvider"])
+		Lib["CProviderStroke"]["Color"] = Color3.fromRGB(72, 72, 72)
+	end
+
+	function GUI:CreateTab(name)
+		local Tab = {}
+
+		-- Create a button for the tab in the Menu frame
+		local tabButton = Instance.new("TextButton", Lib["Menu"])
+		tabButton["BorderSizePixel"] = 0
+		tabButton["TextSize"] = 14
+		tabButton["TextColor3"] = Color3.fromRGB(210, 111, 12)
+		tabButton["BackgroundColor3"] = Color3.fromRGB(46, 46, 46)
+		tabButton["FontFace"] = Font.new([[rbxasset://fonts/families/Michroma.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+		tabButton["Size"] = UDim2.new(0, 61, 0, 25)
+		tabButton["Name"] = name
+		tabButton["Text"] = name
+		tabButton["AutoButtonColor"] = false
+		tabButton["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+
+		-- UIStroke for tab button
+		local buttonStroke = Instance.new("UIStroke", tabButton)
+		buttonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		buttonStroke.Color = Color3.fromRGB(72, 72, 72)
+
+		-- Create the tab content area within CProvider
+		local tabFrame = Instance.new("Frame", Lib["CProvider"])
+		tabFrame["BorderSizePixel"] = 0
+		tabFrame["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+		tabFrame["Size"] = UDim2.new(0, 454, 0, 508)
+		tabFrame["Name"] = name
+		tabFrame["Visible"] = false  -- Hide other tabs when switching
+		tabFrame["BackgroundTransparency"] = 1
+
+		-- Content holder for the tab
+		local tabContent = Instance.new("Frame", tabFrame)
+		tabContent["BorderSizePixel"] = 0
+		tabContent["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+		tabContent["Size"] = UDim2.new(0, 435, 0, 483)
+		tabContent["Position"] = UDim2.new(0.02203, 0, 0.02031, 0)
+		tabContent["BackgroundTransparency"] = 1
+
+		tabButton.Activated:Connect(function()
+			for _, child in ipairs(Lib["CProvider"]:GetChildren()) do
+				if child:IsA("Frame") then
+					child.Visible = false
+				end
+			end
+			for _, button in ipairs(Lib["Menu"]:GetChildren()) do
+				if button:IsA("TextButton") then
+					button.BackgroundColor3 = Color3.fromRGB(46, 46, 46)
+				end
+			end
+			tabFrame.Visible = true
+			tabButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+		end)
+
+		-- Show the first tab by default if no tab is visible
+		if #Lib["CProvider"]:GetChildren() == 1 then
+			tabButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+			tabFrame.Visible = true
+		end
+
+		function Tab:CreateSection(name)
+			local Section = {}
+			-- Add a section to the tab content
+			local sectionFrame = Instance.new("Frame", tabContent)
+			sectionFrame["BorderSizePixel"] = 0
+			sectionFrame["BackgroundColor3"] = Color3.fromRGB(16, 16, 16)
+			sectionFrame["Size"] = UDim2.new(0, 213, 0, 263)
+			sectionFrame["Name"] = name
+
+			-- UIStroke for section
+			local sectionStroke = Instance.new("UIStroke", sectionFrame)
+			sectionStroke.Color = Color3.fromRGB(72, 72, 72)
+			
+			local DFrame = Instance.new("Frame", sectionFrame)
+			DFrame.Size = UDim2.new(0, 213,0, 232)
+			DFrame.Position = UDim2.new(0, 0,0.118, 0)
+			DFrame.BackgroundTransparency = 1
+			
+			local sectionList = Instance.new("UIListLayout", DFrame)
+			sectionList.Padding = UDim.new(0, 7)
+			sectionList.HorizontalAlignment = "Center"
+
+			-- Section title
+			local sectionTitle = Instance.new("TextLabel", sectionFrame)
+			sectionTitle["Text"] = name
+			sectionTitle["TextSize"] = 14
+			sectionTitle["TextColor3"] = Color3.fromRGB(210, 111, 12)
+			sectionTitle["FontFace"] = Font.new([[rbxasset://fonts/families/Michroma.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+			sectionTitle["Size"] = UDim2.new(1, 0, 0, 31)
+			sectionTitle.BackgroundTransparency = 1
+			
+			function Section:CreateButton(name, callback)
+				-- Create a new TextButton within the section frame
+				local button = Instance.new("TextButton")
+				button.Name = name
+				button.Parent = DFrame  -- Assuming `self` is the section frame (adjust if needed)
+				button.BorderSizePixel = 0
+				button.TextSize = 14
+				button.TextColor3 = Color3.fromRGB(210, 111, 12)
+				button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				button.FontFace = Font.new([[rbxasset://fonts/families/Michroma.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+				button.Size = UDim2.new(0, 180, 0, 26)
+				button.BackgroundTransparency = 1
+				button.Text = name
+				button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+				-- UIStroke for the button
+				local buttonStroke = Instance.new("UIStroke", button)
+				buttonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				buttonStroke.Color = Color3.fromRGB(72, 72, 72)
+
+				-- Connect the button to the provided callback
+				button.Activated:Connect(callback)
+
+				return button  -- Return button if you need to manipulate it later
+			end
+			
+			function Section:CreateTextBox(name)
+				local TextBoxFunctions = {}
+
+				-- Create the TextBoxHolder frame
+				local textBoxHolder = Instance.new("Frame")
+				textBoxHolder.Name = "TextBoxHolder"
+				textBoxHolder.Parent = DFrame  -- Assuming `self` refers to the section frame
+				textBoxHolder.BorderSizePixel = 0
+				textBoxHolder.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				textBoxHolder.Size = UDim2.new(0, 180, 0, 26)
+				textBoxHolder.BackgroundTransparency = 1
+
+				-- Add a stroke to the TextBoxHolder
+				local textBoxStroke = Instance.new("UIStroke", textBoxHolder)
+				textBoxStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				textBoxStroke.Color = Color3.fromRGB(72, 72, 72)
+
+				-- Create the TextBox inside the holder
+				local textBox = Instance.new("TextBox")
+				textBox.Name = name
+				textBox.Parent = textBoxHolder
+				textBox.CursorPosition = -1
+				textBox.TextColor3 = Color3.fromRGB(210, 111, 12)
+				textBox.PlaceholderColor3 = Color3.fromRGB(210, 150, 82)
+				textBox.BorderSizePixel = 0
+				textBox.TextSize = 14
+				textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				textBox.FontFace = Font.new([[rbxasset://fonts/families/Michroma.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+				textBox.Size = UDim2.new(0, 180, 0, 26)
+				textBox.BackgroundTransparency = 1
+				textBox.PlaceholderText = name
+				textBox.Text = "";
+
+				-- Function to get the current text from the TextBox
+				function TextBoxFunctions:GetText()
+					return textBox.Text
+				end
+
+				return TextBoxFunctions
+			end
+			
+			function Section:CreateTrigger(name)
+				local triggerFunc = {}
+				local isActive = false
+
+				-- Create the Trigger button
+				local triggerButton = Instance.new("TextButton")
+				triggerButton.Name = name
+				triggerButton.Parent = DFrame  -- Assuming `self` is the section frame
+				triggerButton.BorderSizePixel = 0
+				triggerButton.TextSize = 14
+				triggerButton.TextColor3 = Color3.fromRGB(210, 111, 12)
+				triggerButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				triggerButton.FontFace = Font.new([[rbxasset://fonts/families/Michroma.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+				triggerButton.Size = UDim2.new(0, 180, 0, 26)
+				triggerButton.BackgroundTransparency = 1
+				triggerButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				triggerButton.Text = name .. ": OFF"
+
+				-- Add a stroke to the trigger button
+				local triggerStroke = Instance.new("UIStroke", triggerButton)
+				triggerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				triggerStroke.Color = Color3.fromRGB(72, 72, 72)
+
+				-- Toggle functionality for the button
+				triggerButton.Activated:Connect(function()
+					isActive = not isActive
+					triggerButton.Text = name .. (isActive and ": ON" or ": OFF")
+				end)
+
+				-- Function to get the current trigger state
+				function triggerFunc:getValue()
+					return isActive
+				end
+
+				return triggerFunc
+			end
+			
+			function Section:CreateDropdown(name, callback, ...)
+				local dropdownFunc = {}
+				local selectedValue = nil
+				local options = {...}
+
+				-- Main Dropdown Button
+				local dropdownButton = Instance.new("TextButton")
+				dropdownButton.Name = name
+				dropdownButton.Parent = DFrame  -- Assuming `self` is the section frame
+				dropdownButton.BorderSizePixel = 0
+				dropdownButton.TextSize = 14
+				dropdownButton.TextColor3 = Color3.fromRGB(210, 111, 12)
+				dropdownButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				dropdownButton.FontFace = Font.new([[rbxasset://fonts/families/Michroma.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+				dropdownButton.Size = UDim2.new(0, 180, 0, 26)
+				dropdownButton.BackgroundTransparency = 1
+				dropdownButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				dropdownButton.Text = name .. ": " .. (selectedValue or "Select")
+				dropdownButton.Position = UDim2.new(0.11268, 0, 0.14876, 0)
+
+				-- UI Stroke for Dropdown Button
+				local dropdownStroke = Instance.new("UIStroke", dropdownButton)
+				dropdownStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				dropdownStroke.Color = Color3.fromRGB(72, 72, 72)
+
+				-- Dropdown Options Frame
+				local dropdownFrame = Instance.new("Frame", dropdownButton)
+				dropdownFrame.Visible = false
+				dropdownFrame.ZIndex = 2
+				dropdownFrame.BorderSizePixel = 0
+				dropdownFrame.BackgroundColor3 = Color3.fromRGB(16, 16, 16)
+				dropdownFrame.Size = UDim2.new(0, 180, 0, #options * 26)
+				dropdownFrame.Position = UDim2.new(0, 0, 1, 0)
+				dropdownFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+				-- UI Stroke for Dropdown Frame
+				local dropdownFrameStroke = Instance.new("UIStroke", dropdownFrame)
+				dropdownFrameStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				dropdownFrameStroke.Color = Color3.fromRGB(72, 72, 72)
+
+				-- Layout for Dropdown Frame
+				local listLayout = Instance.new("UIListLayout", dropdownFrame)
+				listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+				listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+				-- Function to create option buttons
+				local function createOptionButton(optionText)
+					local optionButton = Instance.new("TextButton", dropdownFrame)
+					optionButton.BorderSizePixel = 0
+					optionButton.TextSize = 14
+					optionButton.TextColor3 = Color3.fromRGB(210, 111, 12)
+					optionButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+					optionButton.FontFace = Font.new([[rbxasset://fonts/families/Michroma.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+					optionButton.Size = UDim2.new(0, 180, 0, 26)
+					optionButton.BackgroundTransparency = 1
+					optionButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					optionButton.Text = optionText
+
+					-- UI Stroke for each option button
+					local optionStroke = Instance.new("UIStroke", optionButton)
+					optionStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					optionStroke.Color = Color3.fromRGB(72, 72, 72)
+
+					-- Selection Functionality
+					optionButton.Activated:Connect(function()
+						selectedValue = optionText
+						dropdownButton.Text = name .. ": " .. selectedValue
+						dropdownFrame.Visible = false
+					end)
+				end
+
+				-- Create option buttons
+				for _, option in ipairs(options) do
+					createOptionButton(option)
+				end
+
+				-- Toggle Dropdown Visibility on Click
+				dropdownButton.Activated:Connect(function()
+					dropdownFrame.Visible = not dropdownFrame.Visible
+				end)
+
+				-- Function to get selected value
+				function dropdownFunc:GetValue()
+					return selectedValue
+				end
+				
+				dropdownButton.Activated:Connect(function()
+					callback(selectedValue)
+				end)
+
+				return dropdownFunc
+			end
+
+			
+			return Section
+		end
+
+		return Tab
+	end
+
+	return GUI
+end
